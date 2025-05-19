@@ -1,35 +1,30 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const dotenv = require('dotenv');
-const twilio = require('twilio');
-const mongoose = require('./database');
+const sequelize = require('./database'); // ✅ Importación correcta
 const { procesarMensaje } = require('./messages');
 
-dotenv.config();
 const app = express();
+const PORT = process.env.PORT || 3000;
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-const PORT = process.env.PORT || 3000;
-
-// 🔹 **Ruta Webhook de WhatsApp**
-app.post('/whatsapp', async (req, res) => {
-    console.log("📩 Mensaje recibido de WhatsApp:", req.body);
-
-    const message = req.body.Body ? req.body.Body.trim() : '';
-    const sender = req.body.From;
-
-    if (!message || !sender) {
-        return res.status(400).send('Solicitud inválida');
-    }
-
-    await procesarMensaje(message, sender);
+// Ruta para recibir mensajes de Twilio
+app.post('/webhook', async (req, res) => {
+    const mensaje = req.body.Body;
+    const remitente = req.body.From;
+    await procesarMensaje(mensaje, remitente);
     res.sendStatus(200);
 });
 
-// 🔹 Iniciar servidor
-app.listen(PORT, () => console.log(`🔥 Chatbot activo en http://localhost:${PORT}`));
-const { sequelize } = require('./database');
-const Cita = require('./models/Cita');
-
-sequelize.sync(); // ¡Esto crea la tabla si no existe!
+// Sincroniza base de datos y lanza el servidor
+sequelize.sync() // ✅ Esto funciona ahora que sequelize está bien importado
+    .then(() => {
+        console.log('🟢 Base de datos sincronizada');
+        app.listen(PORT, () => {
+            console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
+        });
+    })
+    .catch((error) => {
+        console.error('❌ Error al sincronizar la base de datos:', error);
+    });
