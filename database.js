@@ -1,10 +1,10 @@
+// database.js
 const { Sequelize } = require('sequelize');
-console.log('DATABASE_URL:', process.env.DATABASE_URL);
 
 const dbUrl = process.env.DATABASE_URL;
 
 if (!dbUrl) {
-  throw new Error('DATABASE_URL no está definida. Agrégala a las variables de entorno en Render.');
+  throw new Error('DATABASE_URL no está definida.');
 }
 
 const sequelize = new Sequelize(dbUrl, {
@@ -12,8 +12,8 @@ const sequelize = new Sequelize(dbUrl, {
   dialectOptions: {
     ssl: {
       require: true,
-      rejectUnauthorized: false
-    }
+      rejectUnauthorized: false,
+    },
   },
   logging: false,
 });
