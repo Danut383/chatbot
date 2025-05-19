@@ -1,17 +1,20 @@
 const { Sequelize } = require('sequelize');
 
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
+const dbUrl = process.env.DATABASE_URL;
+
+if (!dbUrl) {
+  throw new Error('DATABASE_URL no está definida. Agrégala a las variables de entorno en Render.');
+}
+
+const sequelize = new Sequelize(dbUrl, {
   dialect: 'postgres',
   dialectOptions: {
     ssl: {
       require: true,
-      rejectUnauthorized: false, // <-- útil si usas servicios como Render o Heroku
+      rejectUnauthorized: false,
     },
   },
+  logging: false,
 });
 
-sequelize.authenticate()
-  .then(() => console.log('✅ Conectado a PostgreSQL'))
-  .catch(err => console.error('❌ Error conectando a PostgreSQL:', err));
-
-module.exports = { sequelize };
+module.exports = sequelize;
