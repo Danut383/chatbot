@@ -1,6 +1,6 @@
 // models/Cita.js
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../database');
+const sequelize = require('../database');
 
 const Cita = sequelize.define('Cita', {
   nombre: {
