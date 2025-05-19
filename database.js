@@ -1,10 +1,13 @@
-// database.js
 const { Sequelize } = require('sequelize');
-require('dotenv').config();
 
-const sequelize = new Sequelize(process.env.PG_URI, {
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: 'postgres',
-  logging: false,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false, // <-- útil si usas servicios como Render o Heroku
+    },
+  },
 });
 
 sequelize.authenticate()
